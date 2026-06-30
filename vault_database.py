@@ -126,4 +126,5 @@ class VaultDatabase:
         for row in entries:
             all_entries.append(Entry.from_row(row))
         
+        # return the lsit of all entries
         return all_entries
