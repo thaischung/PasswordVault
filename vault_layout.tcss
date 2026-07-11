@@ -1,6 +1,30 @@
 .box {
     height: 100%;
-    border: solid #3d3d3d;
+    border: solid #1e2d3d;
+}
+
+HeaderRow {
+    height: 4;
+    border: solid #1e2d3d;
+    width: 1fr;
+    align: center middle;
+}
+
+#header_horizontal {
+    height: 4;
+}
+
+VaultPanel {
+    padding: 1 0;
+    color: #00b4d8;
+}
+
+DataTable {
+    color: #00b4d8;
+}
+
+Screen {
+    background: #080c10;
 }
 
 Vertical {
@@ -17,10 +41,22 @@ Horizontal {
 
 #command_panel {
     width: 1fr;
-    border: solid #3d3d3d;
+    border: solid #1e2d3d;
 }
 
 #entry_panel {
     width: 1fr;
-    border: solid #3d3d3d;
+    border: solid #1e2d3d;
+}
+
+Input {
+    margin-top: 1;
+}
+
+EntryPanel {
+    padding: 1 0;
+}
+
+CommandPanel {
+    padding: 1 0;
 }

@@ -1,5 +1,6 @@
 from entry import Entry # first one is the module second is the class
 import sqlite3
+from datetime import datetime
 
 class VaultDatabase:
 
@@ -25,7 +26,8 @@ class VaultDatabase:
             "notes TEXT, "
             "favorite INTEGER DEFAULT 0, "
             "password_strength INTEGER, "
-            "totp_secret BLOB"
+            "totp_secret BLOB, "
+            "totp_iv BLOB "
             ")"
         )
     
@@ -34,9 +36,9 @@ class VaultDatabase:
         # insert the new entry values into the database using parameterized queries to prevent SQL injection
         # ? sanitizes the input automatically 
         self.cursor.execute(
-            "INSERT INTO entries (site_name, url, username, encrypted_password, iv, created_at, modified_at, notes, favorite, password_strength, totp_secret)"
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (entry.site_name, entry.url, entry.username, entry.encrypted_password, entry.iv, entry.created_at, entry.modified_at, entry.notes, entry.favorite, entry.password_strength, entry.totp_secret)
+            "INSERT INTO entries (site_name, url, username, encrypted_password, iv, created_at, modified_at, notes, favorite, password_strength, totp_secret, totp_iv) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (entry.site_name, entry.url, entry.username, entry.encrypted_password, entry.iv, entry.created_at, entry.modified_at, entry.notes, entry.favorite, entry.password_strength, entry.totp_secret, entry.totp_iv)
         )
 
         # commit changes to have the database save the changes
@@ -61,8 +63,8 @@ class VaultDatabase:
             return
         
         self.cursor.execute(
-            "UPDATE entries SET site_name = ?, url = ?, username = ?, encrypted_password = ?, iv = ?, created_at = ?, modified_at = ?, notes = ?, favorite = ?, password_strength = ?, totp_secret = ? WHERE id = ?",
-            (new_entry.site_name, new_entry.url, new_entry.username, new_entry.encrypted_password, new_entry.iv, new_entry.created_at, new_entry.modified_at, new_entry.notes, new_entry.favorite, new_entry.password_strength, new_entry.totp_secret, id)    
+            "UPDATE entries SET site_name = ?, url = ?, username = ?, encrypted_password = ?, iv = ?, created_at = ?, modified_at = ?, notes = ?, favorite = ?, password_strength = ?, totp_secret = ?, totp_iv = ? WHERE id = ?",
+            (new_entry.site_name, new_entry.url, new_entry.username, new_entry.encrypted_password, new_entry.iv, new_entry.created_at, new_entry.modified_at, new_entry.notes, new_entry.favorite, new_entry.password_strength, new_entry.totp_secret, new_entry.totp_iv, id)
         )
 
         # commit changes to have the database save the changes
@@ -128,3 +130,12 @@ class VaultDatabase:
         
         # return the lsit of all entries
         return all_entries
+    
+    def modified_timestamp(self):
+        now = datetime.now().isoformat()
+
+        self.cursor.execute(
+            "UPDATE entries SET modified_at = ?", (now, )
+        )
+
+        self.connection.commit()

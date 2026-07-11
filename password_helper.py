@@ -2,6 +2,8 @@ from Crypto.Cipher import AES
 import os
 import hmac
 import hashlib
+import secrets
+import string
 
 # utility functions for managing the passwords 
 # using symmetric encryption since it is one person, one device, and the data being protected is at rest
@@ -115,11 +117,64 @@ class PasswordHelper:
         # return the sha256 hash using our salt and the value passed
         return hashlib.sha256(salt + value).digest()
 
-
-
-
-
+    @staticmethod
+    def generate_password(length=18):
         
+        lowercase = string.ascii_lowercase
+        uppercase = string.ascii_uppercase
+        numbers = string.digits
+        symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?'
+        all_chars = lowercase + uppercase + numbers + symbols
+        
+        password = []
+        password.append(secrets.choice(lowercase))
+        password.append(secrets.choice(uppercase))
+        password.append(secrets.choice(numbers))
+        password.append(secrets.choice(symbols))
+        
+        for i in range(length - 4):
+            password.append(secrets.choice(all_chars))
+        
+        secrets.shuffle(password)
+        return ''.join(password)
+
+    @staticmethod
+    def password_strength(password):
+        score = 0
+        
+        has_lower = False
+        has_upper = False
+        has_digit = False
+        has_symbol = False
+        symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?'
+        
+        for c in password:
+            if c.islower():
+                has_lower = True
+            if c.isupper():
+                has_upper = True
+            if c.isdigit():
+                has_digit = True
+            if c in symbols:
+                has_symbol = True
+        
+        if has_lower:
+            score += 1
+        if has_upper:
+            score += 1
+        if has_digit:
+            score += 1
+        if has_symbol:
+            score += 1
+        if len(password) >= 8:
+            score += 1
+        if len(password) >= 16:
+            score += 1
+        
+        return score
+
+
+            
 
 
 

@@ -1,14 +1,13 @@
 from vault_database import VaultDatabase
 from user_database import UserDatabase
 from password_helper import PasswordHelper
-from rich import print as rprint
-from rich.layout import Layout
-from rich.live import Live
+from ui import PasswordVault
 import sys
 import os 
 import getpass
 import time
 import os
+
 
 class App:
     def __init__(self, VDB = "vault.db", UDB = "auth.db"):
@@ -63,6 +62,8 @@ class App:
 
         # create the user
         self.userDB.create_user(challenge_text, response_hash, username, password_hash, salt)
+
+        self._vault()
     
     # if a user exists login screen 
     def _login(self):
@@ -105,7 +106,6 @@ class App:
             username = input("> ")
 
             self._type_effect("Password:")
-            password = getpass.getpass("> ")
             hashed_password = PasswordHelper.sha256_hash_util(password, salt)
         
         # if the number of failed login attemps have reached the max then lockout
@@ -129,7 +129,7 @@ class App:
         self._type_effect(f"Welcome Back {username}")
         
         # move to vault screen
-        self.vault()
+        self._vault()
     
     def _type_effect(self, text, delay=0.5):
         # loop through the text and print the characters one by one
@@ -141,27 +141,7 @@ class App:
         # print a newline character    
         print()
 
-    # displays entires 
     def _vault(self):
-        self._make_layout()
-        rprint(self.layout)
-    
-    # make the layout for the vault
-    def _make_layout(self):
-        self.layout = Layout(name="root")
+        ui = PasswordVault(self.vaultDB, self.key)
+        ui.run()
 
-        # split the layout into the header, vault, and lower pannel
-        self.layout.split(
-            Layout(name="header", ratio=1),
-            Layout(name="vault_dashboard", ratio=4),
-            Layout(name="lower_pannel", ratio=3),
-        )
-        # split the lower pannel into two side by side pannels
-        self.layout["lower_pannel"].split_row(
-            Layout(name="command_pannel"),
-            Layout(name="entry_info"),
-        )
-    
-    # command prompts
-    def _get_action(self):
-        pass
