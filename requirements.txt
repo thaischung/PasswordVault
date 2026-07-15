@@ -1,0 +1,4 @@
+textual
+pycryptodome
+pyperclip
+rich
