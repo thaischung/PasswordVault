@@ -1,13 +1,12 @@
-from vault_database import VaultDatabase
-from user_database import UserDatabase
-from password_helper import PasswordHelper
-from ui import PasswordVault
+from database.vault_database import VaultDatabase
+from database.user_database import UserDatabase
+from security.password_helper import PasswordHelper
+from app.password_vault import PasswordVault
 import sys
 import os 
 import getpass
 import time
 import os
-
 
 class App:
     def __init__(self, VDB = "vault.db", UDB = "auth.db"):
@@ -130,7 +129,7 @@ class App:
         
         os.system('cls' if os.name == 'nt' else 'clear')
         self._type_effect(f"Welcome Back {username}")
-        time.sleep(3)
+        time.sleep(2)
 
         self.userDB.reset_failed_attempts()
         self.userDB.last_logon()

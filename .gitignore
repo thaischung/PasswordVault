@@ -1,4 +1,17 @@
+# Database files
 *.db
-venv/
+
+# Python bytecode
 __pycache__/
-*.pyc
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store

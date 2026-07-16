@@ -1,4 +1,4 @@
-from entry import Entry # first one is the module second is the class
+from models.entry import Entry # first one is the module second is the class
 import sqlite3
 from datetime import datetime
 
