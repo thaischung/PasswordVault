@@ -30,33 +30,54 @@ class App:
     # the first time the user runs the app need to set up user
     def _first_run(self):
         # prompt for cred creation 
-        self._type_effect("Challenge Text:")
-        challenge_text = input("> ")
+        self._type_effect("\nUsername:")
+        username = input("> ").strip()
 
-        self._type_effect("Response:")
-        response = input("> ")
-        
-        self._type_effect("Username:")
-        username = input("> ")
+        while username == "":
+            self._type_effect("\nUsername:")
+            username = input("> ").strip()
 
-        self._type_effect("Password:")
+        self._type_effect("\nPassword:")
         password = getpass.getpass("> ")
 
-        self._type_effect("Re-type Password:")
-        password_confimation = getpass.getpass("> ")
+        while PasswordHelper.password_strength(password) < 5:
+            print("Password Does Not Meet Criteria.\n(8+ characters, one upper, one lower, one number, one symbol)")
+            self._type_effect("\nPassword:")
+            password = getpass.getpass("> ")
 
-        while password_confimation != password:
+        self._type_effect("\nRe-type Password:")
+        password_confirmation = getpass.getpass("> ")
+
+        while password_confirmation != password:
             self._type_effect("Re-type Password:")
-            password_confimation = getpass.getpass("> ")
+            password_confirmation = getpass.getpass("> ")
+        
+        self._type_effect("(Optional)\nChallenge Text:")
+        challenge_text = input("> ").strip()
 
-        # gerneate a random 16 byte salt
+        self._type_effect("\nResponse:")
+        response = input("> ").strip()
+
+        while bool(challenge_text) != bool(response):
+            print(
+                "Challenge text and response must either both be filled "
+                "or both be left blank."
+                )
+             
+            self._type_effect("(Optional)\nChallenge Text:")
+            challenge_text = input("> ").strip()
+
+            self._type_effect("\nResponse:")
+            response = input("> ").strip()
+
+        # generate a random 16 byte salt
         salt = os.urandom(16)
 
         # hash both the password and response using the salt we generated
         response_hash = PasswordHelper.sha256_hash_util(response, salt)
         password_hash = PasswordHelper.sha256_hash_util(password, salt)
 
-        # derive our key for symmetirc encryption
+        # derive our key for symmetric encryption
         self.key = PasswordHelper.derive_key(password.encode(), salt)
 
         # create the user
@@ -71,28 +92,31 @@ class App:
         # first check if the lockout sequence is initiated
         if self.userDB.is_lockout():
             self._type_effect("Lockout.")
-            sys.exit(1)
+            sys.exit(1) 
 
-        # promt for the response to the challenge text
-        self._type_effect(self.userDB.get_challenge_text())
-        response = input("> ")
-        
         # get the user's salt
         salt = self.userDB.get_salt()
-        
-        # hash the response since we are storing the response hashed in the db
-        hashed_response = PasswordHelper.sha256_hash_util(response, salt)
 
-        # if the response is wrong display the message and kill the process
-        if not self.userDB.verify_response(hashed_response):
-            self._type_effect("Authentication Failed.")
-            sys.exit(1)
+        # prompt for the response to the challenge text
+        challenge_text = self.userDB.get_challenge_text()
 
-        # promt for the username
+        if challenge_text:
+            self._type_effect(challenge_text)
+            response = input("> ").strip()
+    
+            # hash the response since we are storing the response hashed in the db
+            hashed_response = PasswordHelper.sha256_hash_util(response, salt)
+
+            # if the response is wrong display the message and kill the process
+            if not self.userDB.verify_response(hashed_response):
+                self._type_effect("Authentication Failed.")
+                sys.exit(1)
+
+        # prompt for the username
         self._type_effect("Username:")
-        username = input("> ")
+        username = input("> ").strip()
         
-        # promt for the password
+        # prompt for the password
         self._type_effect("Password:")
         password = getpass.getpass("> ")
 
@@ -104,13 +128,13 @@ class App:
             self.userDB.increment_failed_attempts()
 
             self._type_effect("Username:")
-            username = input("> ")
+            username = input("> ").strip()
 
             self._type_effect("Password:")
             password = getpass.getpass("> ")
             hashed_password = PasswordHelper.sha256_hash_util(password, salt)
         
-        # if the number of failed login attemps have reached the max then lockout
+        # if the number of failed login attempts have reached the max then lockout
         if self.userDB.get_failed_attempts() == self.max_attempts:
             self._type_effect("Authentication Failed.")
             os.system('cls' if os.name == 'nt' else 'clear')
@@ -124,7 +148,7 @@ class App:
 
         # loading
         os.system('cls' if os.name == 'nt' else 'clear')
-        self._type_effect("Initilizing Vault...")
+        self._type_effect("Initializing Vault...")
         time.sleep(3)
         
         os.system('cls' if os.name == 'nt' else 'clear')
@@ -147,6 +171,6 @@ class App:
         print()
 
     def _vault(self):
-        ui = PasswordVault(self.vaultDB, self.key, self.userDB)
-        ui.run()
+        app = PasswordVault(self.vaultDB, self.key, self.userDB)
+        app.run()
 

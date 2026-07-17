@@ -16,10 +16,10 @@ class VaultDatabase:
         self.cursor.execute(
             "CREATE TABLE IF NOT EXISTS entries ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-            "site_name TEXT NOT NULL, "
+            "site_name TEXT, "
             "url TEXT, "
-            "username TEXT NOT NULL, "
-            "encrypted_password BLOB NOT NULL, "
+            "username TEXT, "
+            "encrypted_password BLOB, "
             "iv BLOB, "
             "created_at TEXT, "
             "modified_at TEXT, "

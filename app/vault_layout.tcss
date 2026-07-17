@@ -1,31 +1,24 @@
+/* ================================================================
+   GLOBAL THEME
+   ================================================================ */
+
+Screen {
+    background: #080c10;
+}
+
+Input {
+    margin-top: 1;
+}
+
 .box {
     height: 100%;
     border: solid #1e2d3d;
 }
 
-HeaderRow {
-    height: 4;
-    border: solid #1e2d3d;
-    width: 1fr;
-    align: center middle;
-}
 
-#header_horizontal {
-    height: 4;
-}
-
-VaultPanel {
-    padding: 1 0;
-    color: #00b4d8;
-}
-
-DataTable {
-    color: #00b4d8;
-}
-
-Screen {
-    background: #080c10;
-}
+/* ================================================================
+   MAIN APPLICATION LAYOUT
+   ================================================================ */
 
 #app_vertical {
     height: 100%;
@@ -39,57 +32,180 @@ Screen {
     height: 1fr;
 }
 
+
+/* ================================================================
+   HEADER
+   ================================================================ */
+
+HeaderRow {
+    width: 1fr;
+    height: 4;
+    border: solid #1e2d3d;
+    align: center middle;
+}
+
+#header_horizontal {
+    height: 4;
+}
+
+
+/* ================================================================
+   VAULT TABLE
+   ================================================================ */
+
+VaultPanel {
+    padding: 1 0;
+    color: #00b4d8;
+}
+
+DataTable {
+    color: #00b4d8;
+}
+
+
+/* ================================================================
+   LOWER PANELS
+   ================================================================ */
+
 #command_panel {
     width: 1fr;
     border: solid #1e2d3d;
-}
-
-#entry_panel {
-    width: 1fr;
-    border: solid #1e2d3d;
-}
-
-Input {
-    margin-top: 1;
-}
-
-EntryPanel {
-    padding: 1 0;
 }
 
 CommandPanel {
     padding: 1 0;
 }
 
-#add_entry_vertical {
-    width: 80%;
-    max-width: 120;
-    min-width: 60;
-    align: center middle;
-    padding: 2 4;
+
+/* ================================================================
+   ENTRY DETAILS CARD
+   ================================================================ */
+
+#entry_panel {
+    width: 1fr;
+    height: 100%;
+    padding: 1 2;
     border: solid #1e2d3d;
-    background: #0d131c;
+    background: #080c10;
+}
+
+EntryPanel {
+    width: 100%;
+    height: 100%;
+}
+
+/* Main container inside EntryPanel */
+#entry_details_card {
+    width: 100%;
     height: auto;
 }
+
+/* Labels such as SITE, URL, USERNAME */
+.entry_label {
+    height: 1;
+    margin-top: 1;
+
+    padding-left: 1;
+
+    color: #4a5a6a;
+    text-style: bold;
+}
+
+/* Regular entry values */
+.entry_value {
+    width: 100%;
+    height: 2;
+    padding-left: 1;
+    color: #00b4d8;
+    content-align: left middle;
+}
+
+/* Password and MFA rows */
+.secret_row {
+    width: 100%;
+    height: 3;
+    margin-bottom: 1;
+    align: left middle;
+}
+
+/* Masked or revealed secret */
+.secret_value {
+    width: 1fr;
+    height: 3;
+    padding: 0 1;
+    content-align: left middle;
+
+    color: #d6e2ec;
+    background: #0d131c;
+    border: tall #1e2d3d;
+}
+
+/* Show and Copy buttons */
+.secret_row Button {
+    width: 9;
+    min-width: 9;
+    height: 3;
+    margin-left: 1;
+    border: none;
+    background: #111a24;
+    color: #9fb3c8;
+}
+
+.secret_row Button:hover {
+    background: #172433;
+    color: #75e6ff;
+}
+
+.secret_row Button:focus {
+    background: #173142;
+    color: #ffffff;
+    text-style: bold;
+}
+
+/* Notes card */
+.notes_value {
+    width: 100%;
+    min-height: 4;
+    padding: 0 1;
+
+    color: #b7c5d3;
+    background: #0d131c;
+    border: tall #1e2d3d;
+
+    content-align: left top;
+}
+
+
+/* ================================================================
+   ADD / EDIT ENTRY SCREEN
+   ================================================================ */
 
 AddEntryScreen {
     align: center middle;
 }
 
-#add_entry_vertical Vertical {
+#add_entry_vertical {
+    width: 80%;
+    min-width: 60;
+    max-width: 120;
     height: auto;
+
+    padding: 2 4;
+    border: solid #1e2d3d;
+    background: #0d131c;
 }
 
+#add_entry_vertical Vertical,
 #add_entry_vertical Horizontal {
     height: auto;
 }
 
-#security_footer {
-    margin-top: 1;
+#add_form_title {
+    margin-bottom: 1;
+    color: #00b4d8;
 }
 
-#button_row {
-    align-horizontal: right;
+#security_footer {
     margin-top: 1;
 }
 
@@ -97,25 +213,8 @@ AddEntryScreen {
     height: 5;
 }
 
-#password_row {
-    height: auto;
-}
 
-#add_form_title {
-    color: #00b4d8;
-    margin-bottom: 1;
-}
-
-#save {
-    margin-left: 1;
-    width: 12;
-    height: 3;
-}
-
-#cancel {
-    width: 12;
-    height: 3;
-}
+/* Password input and controls */
 
 #password_row {
     width: 100%;
@@ -132,36 +231,84 @@ AddEntryScreen {
     margin-right: 1;
 }
 
-#confirmation_screen {
-    margin-left: 1;
-    margin-top: 1;
-}
 
-#confimation_input {
-    width: 70;
-}
+/* Form buttons */
 
-#search_vertical, #change_password_vertical, #help_vertical {
-    width: 80%;
-    max-width: 120;
-    min-width: 60;
+#button_row {
     height: auto;
+    margin-top: 1;
+    align-horizontal: right;
+}
+
+#save,
+#cancel {
+    width: 12;
+    height: 3;
+}
+
+#save {
+    margin-left: 1;
+}
+
+
+/* ================================================================
+   SHARED MODAL SCREEN LAYOUT
+   ================================================================ */
+
+SearchScreen,
+ChangeMasterPasswordScreen,
+HelpScreen {
+    align: center middle;
+}
+
+#search_vertical,
+#change_password_vertical,
+#help_vertical {
+    width: 80%;
+    min-width: 60;
+    max-width: 120;
+    height: auto;
+
     padding: 2 4;
     border: solid #1e2d3d;
     background: #0d131c;
 }
 
-SearchScreen, ChangeMasterPasswordScreen, HelpScreen {
-    align: center middle;
-}
-
-#search_vertical Horizontal, #change_password_vertical Horizontal, #help_vertical Horizontal {
+#search_vertical Vertical,
+#search_vertical Horizontal,
+#change_password_vertical Vertical,
+#change_password_vertical Horizontal,
+#help_vertical Vertical,
+#help_vertical Horizontal {
     height: auto;
 }
 
-#search_vertical Vertical, #change_password_vertical Vertical, #help_vertical Vertical {
+
+/* ================================================================
+   SEARCH SCREEN
+   ================================================================ */
+
+#search_title {
+    margin-bottom: 1;
+    color: #00b4d8;
+}
+
+#search_results {
+    height: 10;
+    margin-top: 1;
+}
+
+#search_button_row {
     height: auto;
-}#change_password_vertical {
+    margin-top: 1;
+}
+
+
+/* ================================================================
+   CHANGE MASTER PASSWORD SCREEN
+   ================================================================ */
+
+#change_password_vertical {
     padding: 2 4;
 }
 
@@ -179,68 +326,18 @@ SearchScreen, ChangeMasterPasswordScreen, HelpScreen {
 }
 
 #change_pw_buttons {
+    height: auto;
     margin-top: 2;
-    height: auto;
 }
 
-#search_results {
-    height: 10;
-    margin-top: 1;
-}
 
-#confirmation_vertical {
-    width: 60%;
-    max-width: 80;
-    height: auto;
-    padding: 2 4;
-    border: solid #e05252;
-    background: #0d131c;
-}
+/* ================================================================
+   HELP SCREEN
+   ================================================================ */
 
-ConfirmationScreen {
-    align: center middle;
-}
-
-#confirmation_vertical Horizontal {
-    height: auto;
-    margin-top: 1;
-}
-
-#search_vertical, #help_vertical {
-    width: 80%;
-    max-width: 120;
-    min-width: 60;
-    height: auto;
-    padding: 2 4;
-    border: solid #1e2d3d;
-    background: #0d131c;
-}
-
-SearchScreen, HelpScreen {
-    align: center middle;
-}
-
-#search_vertical Vertical, #search_vertical Horizontal {
-    height: auto;
-}
-
-#help_vertical Vertical, #help_vertical Horizontal {
-    height: auto;
-}
-
-#search_title, #help_title {
-    color: #00b4d8;
+#help_title {
     margin-bottom: 1;
-}
-
-#search_results {
-    height: 10;
-    margin-top: 1;
-}
-
-#search_button_row, #change_pw_buttons {
-    height: auto;
-    margin-top: 1;
+    color: #00b4d8;
 }
 
 #help_commands {
@@ -252,86 +349,34 @@ SearchScreen, HelpScreen {
 }
 
 HelpScreen Button:focus {
-    text-style: none;
     background: #1a1a2e;
+    text-style: none;
 }
 
-/* ---------------- ENTRY DETAILS ---------------- */
 
-#entry_panel {
-    width: 1fr;
-    height: 100%;
-    border: solid #1e2d3d;
-    background: #080c10;
-    padding: 1 2;
+/* ================================================================
+   CONFIRMATION SCREEN
+   ================================================================ */
+
+ConfirmationScreen {
+    align: center middle;
 }
 
-#vertical_entry_details {
-    width: 100%;
+#confirmation_vertical {
+    width: 60%;
+    max-width: 80;
     height: auto;
-}
 
-#details_site_name {
-    color: #00b4d8;
-    text-style: bold;
-    margin-bottom: 1;
-}
-
-#details_url,
-#details_username,
-#details_notes {
-    color: #b7c5d3;
-    height: auto;
-    margin-bottom: 1;
-}
-
-#details_password_row,
-#details_mfa_row {
-    width: 100%;
-    height: 3;
-    margin-bottom: 1;
-    align-vertical: middle;
-}
-
-#details_password,
-#details_mfa {
-    width: 1fr;
-    height: 3;
-    content-align: left middle;
-    color: #d6e2ec;
+    padding: 2 4;
+    border: solid #e05252;
     background: #0d131c;
-    border: tall #1e2d3d;
-    padding: 0 1;
 }
 
-#details_password_row Button,
-#details_mfa_row Button {
-    width: 9;
-    min-width: 9;
-    height: 3;
-    margin-left: 1;
-    border: tall #1e2d3d;
-    background: #111a24;
-    color: #00b4d8;
-}
-
-#details_password_row Button:hover,
-#details_mfa_row Button:hover {
-    background: #172433;
-    color: #75e6ff;
-}
-
-#details_password_row Button:focus,
-#details_mfa_row Button:focus {
-    background: #173142;
-    color: #ffffff;
-    text-style: bold;
-}
-
-#details_notes {
-    min-height: 3;
+#confirmation_vertical Horizontal {
+    height: auto;
     margin-top: 1;
-    padding: 1;
-    background: #0d131c;
-    border: tall #1e2d3d;
+}
+
+#confirmation_input {
+    width: 70;
 }

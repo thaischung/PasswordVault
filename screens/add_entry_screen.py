@@ -46,45 +46,96 @@ class AddEntryScreen(Screen):
 
     # logic for when the user hits save
     def action_save(self):
-        # encrypt password
+        # get all the values from the new entry
+        site = self.query_one("#site_name", Input).value.strip()
+        url = self.query_one("#url_input", Input).value.strip()
+        username = self.query_one("#username", Input).value.strip()
         password = self.query_one("#password_input", Input).value
+        totp = self.query_one("#mfa_input", Input).value.strip()
+        notes = self.query_one("#notes_input", Input).value.strip()
+
+        # to save a site the entry needs a site name at a minimum
+        if not site:
+            self.notify("Enter a site name.", severity="warning")
+            return
+
+        # encrypt a new password
         if password:
             password_strength = PasswordHelper.password_strength(password)
             encrypted_password, iv = PasswordHelper.encrypt(password, self.key)
-            
+
+        # store the old password, no new entry on edit
         elif self.selected_entry:
             encrypted_password = self.selected_entry.encrypted_password
             iv = self.selected_entry.iv
             password_strength = self.selected_entry.password_strength
-        else:
-            self.notify("Password is required", severity="warning")
-            return
 
-        # encrypt the totp if there is one
-        totp = self.query_one("#mfa_input", Input).value
+        # store no password, no iv, set password strength to 0
+        else:
+            encrypted_password = None
+            iv = None
+            password_strength = 0
+
+        # Encrypt a new mfa secret
         if totp:
             encrypted_totp, totp_iv = PasswordHelper.encrypt(totp, self.key)
-        else:
-            encrypted_totp = self.selected_entry.totp_secret if self.selected_entry else None
-            totp_iv = self.selected_entry.totp_iv if self.selected_entry else None
 
-        site = self.query_one("#site_name", Input).value
-        url = self.query_one("#url_input", Input).value
-        username = self.query_one("#username", Input).value
-        notes = self.query_one("#notes_input", Input).value
+        # store the old mfa
+        elif self.selected_entry:
+            encrypted_totp = self.selected_entry.totp_secret
+            totp_iv = self.selected_entry.totp_iv
+
+        # mfa not enabled, no mfa no iv
+        else:
+            encrypted_totp = None
+            totp_iv = None
+
+        # get the current time to update modified and created on new entries
         current_time = self.vault_db.get_now()
 
-        if self.selected_entry: 
-            entry = Entry(self.selected_entry.id, site, url, username, encrypted_password, iv, self.selected_entry.created_at, current_time, notes, self.selected_entry.favorite, password_strength, encrypted_totp, totp_iv)
+        # if it is the edit option
+        if self.selected_entry:
+            entry = Entry(
+                self.selected_entry.id,
+                site,
+                url,
+                username,
+                encrypted_password,
+                iv,
+                self.selected_entry.created_at,
+                current_time,
+                notes,
+                self.selected_entry.favorite,
+                password_strength,
+                encrypted_totp,
+                totp_iv,
+            )
+
+            # modify the existing entry
             self.vault_db.modify_entry(self.selected_entry.id, entry)
+
+        # add new entry option
         else:
-            entry = Entry(None, site, url, username, encrypted_password, iv, current_time, current_time, notes, 0, password_strength, encrypted_totp, totp_iv)
+            entry = Entry(
+                None,
+                site,
+                url,
+                username,
+                encrypted_password,
+                iv,
+                current_time,
+                current_time,
+                notes,
+                0,
+                password_strength,
+                encrypted_totp,
+                totp_iv,
+            )
+            
+            # add the new entry to the database
             self.vault_db.add_entry(entry)
-        
-        # close this screen and notify the parent screen
-        # this triggers the callback passed into push_screen()
-        # dismiss() return a result to the parent screen and exectutes the callback
-        # unlike pop_screen(), which only removes the screen
+
+        # dismiss the screen, callback and update the vault screen
         self.dismiss(True)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
