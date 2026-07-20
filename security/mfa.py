@@ -30,8 +30,7 @@ class MFA:
             # verify that the character is a valid base32 character
             value = base32.find(char) 
             if value == -1:
-                print("Invalid Base32 Character")
-                return
+                raise ValueError("Invalid Base32 Character")
             
             # set the buffer for the next chracter (shift bits to the left by 5 bits allowing space for the next 5 bit char)
             # BitWise OR the new value into the 5 open spots 
@@ -96,6 +95,38 @@ class MFA:
     def get_code(secret):
         key = MFA._decode(secret)
         message = MFA._get_message()
-        return MFA._HMAC_SHA1(key, message)
+        code = MFA._HMAC_SHA1(key, message)
+        return f"{code:06d}"
 
+    @staticmethod
+    def validate_secret(secret):
+        if not isinstance(secret, str):
+            return False
+        
+        standardized_secret = secret.replace(" ", "").upper().rstrip("=")
 
+        if not standardized_secret:
+            return False
+        
+        valid_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
+
+        for char in standardized_secret:
+            if char not in valid_chars:
+                return False
+        
+        try: 
+            decoded_secret = MFA._decode(standardized_secret)
+
+            if not decoded_secret:
+                return False
+            
+            # require at least 10 bytes of decoded key material
+            if len(decoded_secret) < 10:
+                return False
+            
+            code = MFA.get_code(standardized_secret)
+
+            return len(code) == 6 and code.isdigit()
+
+        except (TypeError, ValueError, IndexError):
+            return False

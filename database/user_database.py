@@ -1,5 +1,5 @@
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 import hmac
 
 class UserDatabase:
@@ -176,8 +176,17 @@ class UserDatabase:
         if result is None:
             return False
         
-        return result[0] is not None
-    
+        if result[0] is None:
+            return False
+        
+        lockout_timer = datetime.fromisoformat(result[0])
+        # if the timer has been lockedout for 24 hrs clear it
+        if datetime.now() - lockout_timer > timedelta(hours=24):
+            self.clear_lockout()
+            return False
+        
+        return True
+       
     # clear the lockout timestamp
     def clear_lockout(self):
         self.cursor.execute(

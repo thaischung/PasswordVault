@@ -4,6 +4,7 @@ from textual.containers import Vertical, Horizontal
 from textual.screen import Screen
 from security.password_helper import PasswordHelper
 from models.entry import Entry
+from security.mfa import MFA
 
 # add a new entry to the vault
 class AddEntryScreen(Screen):
@@ -34,10 +35,13 @@ class AddEntryScreen(Screen):
             yield Input(value=self.selected_entry.url if self.selected_entry else "", placeholder="URL — https://example.com", id="url_input")
             yield Input(value=self.selected_entry.username if self.selected_entry else "", placeholder="Username", id="username")
             with Horizontal(id="password_row"):
-                yield Input(placeholder="Password", password=True, id="password_input")
+                yield Input(value=self._get_entry_password() if self.selected_entry else "", placeholder="password", password=True, id="password_input")
                 yield Button("Show", id="toggle_password")
                 yield Button("Generate", id="generate_password")
-            yield Input(placeholder="MFA secret (optional)", id="mfa_input")
+            with Horizontal(id="mfa_row"):
+                yield Input(value=self._get_entry_mfa() if self.selected_entry else "", placeholder="MFA secret (optional)",password=True, id="mfa_input")
+                yield Button("Show", id="toggle_mfa")
+                yield Static("", id="mfa_button_spacer")
             yield Input(value=self.selected_entry.notes if self.selected_entry else "", placeholder="Notes", id="notes_input")
             yield Static("[#4a5a6a]AES-256-CBC  ◆  PBKDF2-HMAC-SHA256  ◆  Local Only[/#4a5a6a]", id="security_footer")
             with Horizontal(id="button_row"):
@@ -46,46 +50,41 @@ class AddEntryScreen(Screen):
 
     # logic for when the user hits save
     def action_save(self):
+        totp = self.query_one("#mfa_input", Input).value
+        totp = totp.replace(" ", "").upper().rstrip("=")
+
+        if totp and not MFA.validate_secret(totp):
+            self.notify("Key value is invalid.", severity="warning")
+            return
+
         # get all the values from the new entry
         site = self.query_one("#site_name", Input).value.strip()
         url = self.query_one("#url_input", Input).value.strip()
         username = self.query_one("#username", Input).value.strip()
         password = self.query_one("#password_input", Input).value
-        totp = self.query_one("#mfa_input", Input).value.strip()
         notes = self.query_one("#notes_input", Input).value.strip()
 
         # to save a site the entry needs a site name at a minimum
         if not site:
             self.notify("Enter a site name.", severity="warning")
             return
+        
+        if not username:
+            self.notify("Enter a username.", severity="warning")
+            return
+        
+        if not password:
+            self.notify("Enter a password.", severity="warning")
+            return
 
-        # encrypt a new password
-        if password:
-            password_strength = PasswordHelper.password_strength(password)
-            encrypted_password, iv = PasswordHelper.encrypt(password, self.key)
-
-        # store the old password, no new entry on edit
-        elif self.selected_entry:
-            encrypted_password = self.selected_entry.encrypted_password
-            iv = self.selected_entry.iv
-            password_strength = self.selected_entry.password_strength
-
-        # store no password, no iv, set password strength to 0
-        else:
-            encrypted_password = None
-            iv = None
-            password_strength = 0
+        password_strength = PasswordHelper.password_strength(password)
+        encrypted_password, iv = PasswordHelper.encrypt(password, self.key)
 
         # Encrypt a new mfa secret
         if totp:
             encrypted_totp, totp_iv = PasswordHelper.encrypt(totp, self.key)
 
         # store the old mfa
-        elif self.selected_entry:
-            encrypted_totp = self.selected_entry.totp_secret
-            totp_iv = self.selected_entry.totp_iv
-
-        # mfa not enabled, no mfa no iv
         else:
             encrypted_totp = None
             totp_iv = None
@@ -147,6 +146,32 @@ class AddEntryScreen(Screen):
         elif event.button.id == "toggle_password":
             pw = self.query_one("#password_input", Input)
             pw.password = not pw.password
+            event.button.label = "Hide" if not pw.password else "Show"
+
         elif event.button.id == "generate_password":
             pw = PasswordHelper.generate_password()
             self.query_one("#password_input", Input).value = pw
+
+        elif event.button.id == "toggle_mfa":
+            mfa_input = self.query_one("#mfa_input", Input)
+            mfa_input.password = not mfa_input.password
+            event.button.label = "Hide" if not mfa_input.password else "Show"
+
+    def _get_entry_password(self):
+        encrypted_password = self.selected_entry.encrypted_password
+        iv = self.selected_entry.iv
+
+        pw = PasswordHelper.decrypt(encrypted_password, self.key, iv)
+
+        return pw.decode()
+    
+    def _get_entry_mfa(self):
+        if not self.selected_entry.totp_secret or not self.selected_entry.totp_iv:
+            return ""
+        
+        encrypted_mfa = self.selected_entry.totp_secret
+        iv = self.selected_entry.totp_iv
+
+        mfa = PasswordHelper.decrypt(encrypted_mfa, self.key, iv)
+
+        return mfa.decode()

@@ -30,6 +30,7 @@ class App:
     # the first time the user runs the app need to set up user
     def _first_run(self):
         # prompt for cred creation 
+        print("Setup")
         self._type_effect("\nUsername:")
         username = input("> ").strip()
 

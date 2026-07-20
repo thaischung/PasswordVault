@@ -58,4 +58,12 @@ class VaultPanel(Widget):
                     favorite,
                     key=str(entry.id)
                 )
+
+        # make sure that the selected entry remains selected
+        selected = self.app.selected_entry
+        if selected:
+            try:
+                table.move_cursor(row=table.get_row_index(str(selected.id)))
+            except:
+                pass
     

@@ -1,5 +1,5 @@
 from textual.app import App
-from textual.widgets import DataTable
+from textual.widgets import DataTable, Input
 from textual.containers import Vertical, Horizontal
 from screens.add_entry_screen import AddEntryScreen
 from screens.confirmation_screen import ConfirmationScreen
@@ -120,6 +120,7 @@ class PasswordVault(App):
             decrypted_password = PasswordHelper.decrypt(self.selected_entry.encrypted_password, self.key, self.selected_entry.iv)
             pyperclip.copy(decrypted_password.decode())
             self.notify("Password copied to clipboard", severity="information")
+            self.set_timer(15, lambda: pyperclip.copy(""))
 
     # when the user uses the key command to copy a username
     def action_copy_username(self):
@@ -128,6 +129,7 @@ class PasswordVault(App):
         else:
             pyperclip.copy(self.selected_entry.username)
             self.notify("Username copied to clipboard", severity="information")
+            self.set_timer(15, lambda: pyperclip.copy(""))
 
     # when the user uses the key command to copy a MFA
     def action_copy_mfa(self):
@@ -138,6 +140,7 @@ class PasswordVault(App):
                 decrypted_mfa = PasswordHelper.decrypt(self.selected_entry.totp_secret, self.key, self.selected_entry.totp_iv)
                 pyperclip.copy(MFA.get_code(decrypted_mfa.decode()))
                 self.notify("MFA code copied to clipboard", severity="information")
+                self.set_timer(15, lambda: pyperclip.copy(""))
             else:
                 self.notify(f"MFA not enabled for entry with id:{self.selected_entry.id}", severity="warning")
                 return
@@ -151,6 +154,14 @@ class PasswordVault(App):
             self.vault_db.toggle_favorite(new_favorite, self.selected_entry.id)
             self.selected_entry.favorite = new_favorite
             self._screen_closed()
+            # get whatever screen is active on top of the stack
+            current_screen = self.screen
+            # check if that screen has a filter_results method (search screen does)
+            if hasattr(current_screen, 'filter_results'):
+                # get the text in the search input
+                query = current_screen.query_one("#search_input", Input).value
+                # rerun the search with the text to refresh the results
+                current_screen.filter_results(query)
 
     # when the user uses the key command to change the user's password
     def action_change_password(self):

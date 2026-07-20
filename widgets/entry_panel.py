@@ -1,7 +1,7 @@
 from textual.app import ComposeResult
 from textual.widgets import Static, Button
 from textual.widget import Widget
-from textual.containers import Vertical, Horizontal
+from textual.containers import Vertical, Horizontal, VerticalScroll
 from security.password_helper import PasswordHelper
 from security.mfa import MFA
 import pyperclip
@@ -17,7 +17,7 @@ class EntryPanel(Widget):
     
     # compose creates the panel when the app first starts up, no selected entry
     def compose(self) -> ComposeResult:
-        with Vertical(id="entry_details_card"):
+        with VerticalScroll(id="entry_details_card"):
             yield Static("SITE", classes="entry_label")
             yield Static("--", id="details_site", classes="entry_value")
 

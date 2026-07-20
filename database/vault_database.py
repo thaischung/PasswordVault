@@ -16,11 +16,11 @@ class VaultDatabase:
         self.cursor.execute(
             "CREATE TABLE IF NOT EXISTS entries ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-            "site_name TEXT, "
+            "site_name TEXT NOT NULL, "
             "url TEXT, "
-            "username TEXT, "
-            "encrypted_password BLOB, "
-            "iv BLOB, "
+            "username TEXT NOT NULL, "
+            "encrypted_password BLOB NOT NULL, "
+            "iv BLOB NOT NULL, "
             "created_at TEXT, "
             "modified_at TEXT, "
             "notes TEXT, "
@@ -93,6 +93,9 @@ class VaultDatabase:
 
     # search
     def search_for_entry(self, search):
+        # if there is no search return an empty list
+        if not search:
+            return []
         # select all entries where the site_name contains the search 
         self.cursor.execute(
             f"SELECT * FROM entries WHERE site_name LIKE ?", (search + "%",)

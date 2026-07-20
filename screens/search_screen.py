@@ -49,7 +49,23 @@ class SearchScreen(Screen):
                     favorite,
                     key=str(entry.id)
                 )
+        selected = self.app.selected_entry
+        if selected:
+            try:
+                table.move_cursor(row=table.get_row_index(str(selected.id)))
+            except:
+                pass
+    
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "close":
             self.app.pop_screen()
+
+    def on_data_table_row_highlighted(self, event: DataTable.RowHighlighted) -> None:
+        if event.row_key.value is None:
+            return
+        self.app.selected_entry = self.vault_db.get_entry(int(event.row_key.value))
+    
+    def on_screen_resume(self) -> None:
+        current_query = self.query_one("#search_input", Input).value
+        self.filter_results(current_query)

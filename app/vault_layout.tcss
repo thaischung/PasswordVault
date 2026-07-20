@@ -121,11 +121,33 @@ EntryPanel {
 }
 
 /* Password and MFA rows */
-.secret_row {
+#password_row,
+#mfa_row {
     width: 100%;
     height: 3;
-    margin-bottom: 1;
+    margin-top: 1;
     align: left middle;
+}
+
+#password_input,
+#mfa_input {
+    width: 1fr;
+    margin: 0;
+    height: 3;
+}
+
+#toggle_password,
+#generate_password {
+    height: 3;
+    margin-left: 1;
+}
+
+#toggle_mfa {
+
+}
+
+#mfa_button_spacer {
+    width: 14;
 }
 
 /* Masked or revealed secret */
@@ -212,7 +234,6 @@ AddEntryScreen {
 #notes_input {
     height: 5;
 }
-
 
 /* Password input and controls */
 
