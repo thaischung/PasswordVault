@@ -23,8 +23,8 @@ Git
 **Setup — Linux (Ubuntu/Debian)**
 1. Clone the repository
 bash
-git clone https://github.com/thaischung/PasswordVault.git
-cd PasswordVault
+"git clone https://github.com/thaischung/PasswordVault.git"
+"cd PasswordVault"
 
 2. Make the setup script executable and run it
 bash
